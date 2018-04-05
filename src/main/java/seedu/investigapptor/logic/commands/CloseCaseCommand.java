@@ -1,4 +1,3 @@
-//@@author pkaijun
 package seedu.investigapptor.logic.commands;
 
 import static java.util.Objects.requireNonNull;
@@ -23,6 +22,7 @@ import seedu.investigapptor.model.crimecase.exceptions.DuplicateCrimeCaseExcepti
 import seedu.investigapptor.model.person.investigator.Investigator;
 import seedu.investigapptor.model.tag.Tag;
 
+//@@author pkaijun
 /**
  * Update the status of a case from open to close and update the EndDate field
  */
