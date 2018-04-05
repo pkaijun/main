@@ -33,22 +33,34 @@ public class Investigator extends Person {
         super(name, phone, email, address, tags);
         this.rank = rank;
         crimeCases = new UniqueCrimeCaseList();
+        caseListHashed = new ArrayList<>();
     }
     public Investigator(Name name, Phone phone, Email email, Address address, Rank rank,
                         Set<CrimeCase> cases, Set<Tag> tags) {
         super(name, phone, email, address, tags);
         this.rank = rank;
         crimeCases = new UniqueCrimeCaseList(cases);
+        caseListHashed = new ArrayList<>();
+        for (CrimeCase c : cases) {
+            caseListHashed.add(c.hashCode());
+        }
     }
     public Investigator(Name name, Phone phone, Email email, Address address, Rank rank,
                         Set<Tag> tags, ArrayList<Integer> caseListHashed) {
         super(name, phone, email, address, tags);
         this.rank = rank;
         crimeCases = new UniqueCrimeCaseList();
-        this.caseListHashed = caseListHashed;
+        this.caseListHashed = new ArrayList<>(caseListHashed);
     }
+    /**
+     * Add CrimeCase to list
+     * Add the CrimeCase hashcode as well
+     */
     public void addCrimeCase(CrimeCase caseToAdd) throws DuplicateCrimeCaseException {
         crimeCases.add(caseToAdd);
+        if (!caseListHashed.contains(caseToAdd.hashCode())) {
+            caseListHashed.add(caseToAdd.hashCode());
+        }
     }
     /**
      * Returns an immutable CrimeCase set, which throws {@code UnsupportedOperationException}
@@ -99,9 +111,17 @@ public class Investigator extends Person {
             return false;
         }
     }
-
+    /**
+     * Remove CrimeCase from list
+     * Remove the CrimeCase hashcode as well
+     */
     public void removeCrimeCase(CrimeCase caseToRemove) throws CrimeCaseNotFoundException {
         crimeCases.remove(caseToRemove);
+        caseListHashed.remove((Integer) caseToRemove.hashCode());
+    }
+
+    public void clearCaseList() {
+        crimeCases.removeAll();
     }
 
     public ArrayList<Integer> getCaseListHashed() {

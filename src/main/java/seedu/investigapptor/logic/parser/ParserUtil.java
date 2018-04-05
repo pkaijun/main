@@ -7,12 +7,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import seedu.investigapptor.commons.core.Messages;
 import seedu.investigapptor.commons.core.index.Index;
 import seedu.investigapptor.commons.exceptions.IllegalValueException;
 import seedu.investigapptor.commons.util.StringUtil;
-import seedu.investigapptor.logic.commands.ListCommand;
-import seedu.investigapptor.logic.commands.SetCommand;
 import seedu.investigapptor.logic.commands.exceptions.InvalidPasswordException;
 import seedu.investigapptor.model.Password;
 
@@ -51,6 +48,15 @@ public class ParserUtil {
             throw new IllegalValueException(MESSAGE_INVALID_INDEX);
         }
         return Index.fromOneBased(Integer.parseInt(trimmedIndex));
+    }
+
+    /**
+     * Parses a {@code Optional<String> oneBasedIndex} into an {@code Optional<Index>} if {@code oneBasedIndex}
+     * is present. See header comment of this class regarding the use of {@code Optional} parameters.
+     */
+    public static Optional<Index> parseIndex(Optional<String> oneBasedIndex) throws IllegalValueException {
+        requireNonNull(oneBasedIndex);
+        return oneBasedIndex.isPresent() ? Optional.of(parseIndex(oneBasedIndex.get())) : Optional.empty();
     }
 
     /**
@@ -274,34 +280,7 @@ public class ParserUtil {
         return tagSet;
     }
 
-    /**
-     * Parses a {@code String type} into a {@code type}.
-     * Leading and trailing whitespaces will be trimmed.
-     *
-     * @throws IllegalValueException if the given {@code type} is invalid.
-     */
-    public static String parseListType(String type) throws IllegalValueException {
-        String trimmedType = type.trim();
-        if (!ListCommand.isValidInvestigatorAlias(trimmedType) && !ListCommand.isValidCaseAlias((trimmedType))) {
-            throw new IllegalValueException(Messages.MESSAGE_INVALID_COMMAND_ALIAS);
-        }
-        return trimmedType;
-    }
-
-    /**
-     * Parses a {@code String type} into a {@code type}.
-     * Leading and trailing whitespaces will be trimmed.
-     *
-     * @throws IllegalValueException if the given {@code type} is invalid.
-     */
-    public static String parseSetType(String type) throws IllegalValueException {
-        String trimmedType = type.trim();
-        if (!SetCommand.isValidPasswordAlias(trimmedType)) {
-            throw new IllegalValueException(Messages.MESSAGE_INVALID_COMMAND_ALIAS);
-        }
-        return trimmedType;
-    }
-
+    //@@author quentinkhoo
     /**
      * Parses a {@code String email} into an {@code Email}.
      * Leading and trailing whitespaces will be trimmed.
@@ -315,4 +294,5 @@ public class ParserUtil {
         }
         return new Password(password);
     }
+    //@@author
 }

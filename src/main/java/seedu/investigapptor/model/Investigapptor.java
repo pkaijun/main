@@ -48,6 +48,7 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
         tags = new UniqueTagList();
     }
 
+    //@@author quentinkhoo
     public Investigapptor() {
         this.password = new Password();
     }
@@ -55,6 +56,7 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
     public Investigapptor(String password) {
         this.password = new Password(password);
     }
+    //@@author
 
     /**
      * Creates an Investigapptor using the Investigators, CrimeCases, Password and Tags in the {@code toBeCopied}
@@ -78,6 +80,7 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
         this.tags.setTags(tags);
     }
 
+    //@@author quentinkhoo
     public void setPassword(String password) {
         this.password = new Password(password);
     }
@@ -85,6 +88,7 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
     public void setPassword(Password oldPassword) {
         this.password = oldPassword;
     }
+    //@@author
 
     /**
      * Resets the existing data of this {@code Investigapptor} with {@code newData}.
@@ -95,14 +99,14 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
         List<CrimeCase> syncedCrimeCaseList = newData.getCrimeCaseList().stream()
                 .map(this::syncWithMasterTagList)
                 .collect(Collectors.toList());
-        List<Person> syncedPersonList = newData.getPersonList().stream()
-                .map(this::syncWithMasterTagList)
-                .collect(Collectors.toList());
         try {
             setCrimeCases(syncedCrimeCaseList);
         } catch (DuplicateCrimeCaseException e) {
             throw new AssertionError("Investigapptors should not have duplicate cases");
         }
+        List<Person> syncedPersonList = newData.getPersonList().stream()
+                .map(this::syncWithMasterTagList)
+                .collect(Collectors.toList());
         try {
             setPersons(syncedPersonList);
         } catch (DuplicatePersonException e) {
@@ -166,7 +170,8 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
      *
      *
      */
-    public void convertHashToCases(Investigator key) throws DuplicatePersonException {
+    public void convertHashToCases(Investigator key) {
+        requireNonNull(key.getCaseListHashed());
         if (key.getCaseListHashed() != null) {
             for (Integer i : key.getCaseListHashed()) {
                 for (CrimeCase c : cases) {
@@ -180,7 +185,6 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
                 }
             }
         }
-        addPerson(key);
     }
     //// case-level operations
 
@@ -192,17 +196,12 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
      * @throws DuplicateCrimeCaseException if an equivalent case already exists.
      */
     public void addCrimeCase(CrimeCase c) throws DuplicateCrimeCaseException {
-        CrimeCase crimecase = syncWithMasterTagList(c);
+        CrimeCase crimeCase = syncWithMasterTagList(c);
         // TODO: the tags master list will be updated even though the below line fails.
         // This can cause the tags master list to have additional tags that are not tagged to any case
         // in the case list.
-        if (cases.add(crimecase)) {
-            if (crimecase.getCurrentInvestigator() != null) {
-                for (CrimeCase d : crimecase.getCurrentInvestigator().getCrimeCases()) {
-                    System.out.println(d.getCaseName());
-                }
-                crimecase.getCurrentInvestigator().addCrimeCase(crimecase);
-            }
+        if (cases.add(crimeCase)) {
+            addCrimeCaseToInvestigator(crimeCase);
         }
     }
 
@@ -211,8 +210,8 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
      * Replaces the given case {@code target} in the list with {@code editedCase}.
      * {@code Investigapptor}'s tag list will be updated with the tags of {@code editedCase}.
      *
-     * @throws DuplicateCrimeCaseException if updating the crimecase's details causes the crimecase to be equivalent to
-     *                                  another existing crimecase in the list.
+     * @throws DuplicateCrimeCaseException if updating the crimeCase's details causes the crimeCase to be equivalent to
+     *                                  another existing crimeCase in the list.
      * @throws CrimeCaseNotFoundException  if {@code target} could not be found in the list.
      * @see #syncWithMasterTagList(CrimeCase)
      */
@@ -223,8 +222,10 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
         CrimeCase syncedEditedCrimeCase = syncWithMasterTagList(editedCase);
         // TODO: the tags master list will be updated even though the below line fails.
         // This can cause the tags master list to have additional tags that are not tagged to any person
-        // in the crimecase list.
+        // in the crimeCase list.
+        removeCrimeCaseFromInvestigator(target);
         cases.setCrimeCase(target, syncedEditedCrimeCase);
+        addCrimeCaseToInvestigator(syncedEditedCrimeCase);
     }
 
     /**
@@ -237,6 +238,42 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
             return true;
         } else {
             throw new CrimeCaseNotFoundException();
+        }
+    }
+
+    /**
+     * Adds {@code crimeCase} to {@code Investigator}.
+     *
+     * @throws DuplicateCrimeCaseException if the {@code key} is not in this {@code Investigapptor}.
+     */
+    public void addCrimeCaseToInvestigator(CrimeCase key) throws DuplicateCrimeCaseException {
+        if (key.getCurrentInvestigator() != null) {
+            for (Person person : persons) {
+                // Finds the independent Investigator object that was assigned under the case
+                if (key.getCurrentInvestigator().getName().equals(person.getName())) {
+                    Investigator investigator = (Investigator) person;
+                    investigator.addCrimeCase(key);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes {@code key} from {@code Investigator}.
+     *
+     * @throws CrimeCaseNotFoundException if the {@code key} is not in this {@code Investigapptor}.
+     */
+    public void removeCrimeCaseFromInvestigator(CrimeCase key) throws CrimeCaseNotFoundException {
+        if (key.getCurrentInvestigator() != null) {
+            for (Person person : persons) {
+                // Finds the independent Investigator object that was assigned under the case
+                if (key.getCurrentInvestigator().getName().equals(person.getName())) {
+                    Investigator investigator = (Investigator) person;
+                    investigator.removeCrimeCase(key);
+                    break;
+                }
+            }
         }
     }
 
@@ -278,25 +315,25 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
         final Set<Tag> correctTagReferences = new HashSet<>();
         personTags.forEach(tag -> correctTagReferences.add(masterTagObjects.get(tag)));
         if (person instanceof Investigator) {
-            Set<CrimeCase> cases = new HashSet<>();
-            Investigator inv = (Investigator) person;
-            inv.getCrimeCases().forEach(crimeCase -> cases.add(crimeCase));
-            return new Investigator(person.getName(), person.getPhone(), person.getEmail(),
-                    person.getAddress(), ((Investigator) person).getRank(), cases, correctTagReferences);
+            Investigator inv = new Investigator(person.getName(), person.getPhone(), person.getEmail(),
+                    person.getAddress(), ((Investigator) person).getRank(),
+                    correctTagReferences, ((Investigator) person).getCaseListHashed());
+            convertHashToCases(inv);
+            return inv;
         }
         return new Person(
                 person.getName(), person.getPhone(), person.getEmail(), person.getAddress(), correctTagReferences);
     }
 
     /**
-     * Updates the master tag list to include tags in {@code crimecase} that are not in the list.
+     * Updates the master tag list to include tags in {@code crimeCase} that are not in the list.
      *
-     * @return a copy of this {@code crimecase} such that every tag in this case points to a Tag object in the master
+     * @return a copy of this {@code crimeCase} such that every tag in this case points to a Tag object in the master
      * list.
      */
-    private CrimeCase syncWithMasterTagList(CrimeCase crimecase) {
-        final UniqueTagList crimecaseTags = new UniqueTagList(crimecase.getTags());
-        tags.mergeFrom(crimecaseTags);
+    private CrimeCase syncWithMasterTagList(CrimeCase crimeCase) {
+        final UniqueTagList crimeCaseTags = new UniqueTagList(crimeCase.getTags());
+        tags.mergeFrom(crimeCaseTags);
 
         // Create map with values = tag object references in the master list
         // used for checking case tag references
@@ -305,11 +342,15 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
 
         // Rebuild the list of case tags to point to the relevant tags in the master tag list.
         final Set<Tag> correctTagReferences = new HashSet<>();
-        crimecaseTags.forEach(tag -> correctTagReferences.add(masterTagObjects.get(tag)));
+        crimeCaseTags.forEach(tag -> correctTagReferences.add(masterTagObjects.get(tag)));
+        Investigator investigator = (Investigator) syncWithMasterTagList(crimeCase.getCurrentInvestigator());
+        investigator.clearCaseList(); // Fix for undo/redo: Clears investigator case list
         return new CrimeCase(
-                crimecase.getCaseName(), crimecase.getDescription(), crimecase.getCurrentInvestigator(),
-                crimecase.getStartDate(), crimecase.getEndDate(), crimecase.getStatus(), correctTagReferences);
+                crimeCase.getCaseName(), crimeCase.getDescription(), investigator,
+                crimeCase.getStartDate(), crimeCase.getEndDate(), crimeCase.getStatus(), correctTagReferences);
     }
+
+    //@@author quentinkhoo
     ///password level operations
 
     /**
@@ -319,6 +360,15 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
     public void updatePassword(Password newPassword) {
         password.updatePassword(newPassword);
     }
+
+    /**
+     * Removes the password of this {@code Investigapptor}
+     */
+    public void removePassword() {
+        this.password = null;
+    }
+    //@@author
+
     //// util methods
 
     @Override
@@ -348,10 +398,12 @@ public class Investigapptor implements ReadOnlyInvestigapptor {
         return cases.asObservableList();
     }
 
+    //@@author quentinkhoo
     @Override
     public Password getPassword() {
         return password;
     }
+    //@@author
 
     @Override
     public ObservableList<Tag> getTagList() {
