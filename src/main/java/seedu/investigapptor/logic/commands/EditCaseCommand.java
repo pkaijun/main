@@ -30,14 +30,14 @@ import seedu.investigapptor.model.crimecase.exceptions.DuplicateCrimeCaseExcepti
 import seedu.investigapptor.model.person.Person;
 import seedu.investigapptor.model.person.investigator.Investigator;
 import seedu.investigapptor.model.tag.Tag;
-
+//@@author leowweiching
 /**
  * Edits the details of an existing case in the investigapptor book.
  */
 public class EditCaseCommand extends UndoableCommand {
 
-    public static final String COMMAND_WORD = "editCase";
-    public static final String COMMAND_ALIAS = "eC";
+    public static final String COMMAND_WORD = "editcase";
+    public static final String COMMAND_ALIAS = "ec";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the case identified "
             + "by the index number used in the last listing of crimeCases. "

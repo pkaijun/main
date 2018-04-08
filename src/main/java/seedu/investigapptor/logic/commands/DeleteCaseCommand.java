@@ -12,14 +12,14 @@ import seedu.investigapptor.commons.events.ui.SwapTabEvent;
 import seedu.investigapptor.logic.commands.exceptions.CommandException;
 import seedu.investigapptor.model.crimecase.CrimeCase;
 import seedu.investigapptor.model.crimecase.exceptions.CrimeCaseNotFoundException;
-
+//@@author leowweiching-reused
 /**
  * Deletes a case identified using it's last displayed index from the investigapptor book.
  */
 public class DeleteCaseCommand extends UndoableCommand {
 
-    public static final String COMMAND_WORD = "deleteCase";
-    public static final String COMMAND_ALIAS = "dC";
+    public static final String COMMAND_WORD = "deletecase";
+    public static final String COMMAND_ALIAS = "dc";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
             + ": Deletes the case identified by the index number used in the last listing of cases.\n"
