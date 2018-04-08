@@ -15,7 +15,7 @@ endif::[]
 By: `Team F14-B3`      Since: `Mar 2018`      Licence: `MIT`
 
 == Introduction
-
+Investigapptor is a one-stop solution for investigators to make managing cases as simple, straightforward, and efficient as possible.
 
 == Setting up
 Follow the instructions below to set up and configure `Investigapptor` project files on your computer
@@ -235,6 +235,102 @@ Classes used by multiple components are in the `seedu.investigapptorbook.commons
 This section describes some noteworthy details on how certain features are implemented.
 
 // tag::undoredo[]
+=== Password feature
+==== Reason for implementation
+As Investigapptor is a computer software that will likely to be installed on a shared computer,
+a password prompt is necessary in order to deter non-authorized users of the Investigapptor from
+gaining access into the application.
+
+==== Current Implementation
+To be updated
+
+=== Listing feature
+==== Reason for implementation
+Investigapptor allows for separate tab listing of cases and investigators on the user interface as it
+would provide visual aid for them in deciding which investigator to assign to which case. As an investigator who would
+want to list and view all currently registered investigators or assigned cases, the listing
+command would automatically swap between the 2 tabs respectively upon the listing input, bringing
+convenience to the investigator ultimately.
+
+==== Current Implementation
+The investigators/cases tabs are created with a `PersonListPanel`
+and `CrimeCaseListPanel` respectively, which are the main classes
+in charge of displaying the details of the investigators or crime cases.
+The list investigators/cases command would then display the respective
+tabs depending on the list argument.
+
+A `PersonListPanel` constructor is created with a constructor:
+[source,java]
+----
+public class PersonListPanel extends UiPart<Region> {
+    @Override
+    public PersonListPanel(ObservableList<Person> personList) {
+    /// PersonListPanel code
+    }
+}
+----
+The `PersonListPanel` is then initialised in the MainWindow class
+by taking in an unmodifiable list of Person as follows:
+[source,java]
+----
+    personListPanel = new PersonListPanel(logic.getFilteredPersonList());
+----
+A `CrimeCaseListPanel` constructor is created with a constructor:
+[source,java]
+----
+public class CrimeCaseListPanel extends UiPart<Region> {
+    @Override
+    public CrimeCaseListPanel(ObservableList<CrimeCase> crimeCaseList) {
+    /// CrimeCaseListPanel code
+    }
+}
+----
+The `CrimeCaseListPanel` is then initialised in the MainWindow class by taking in
+an unmodifiable list of CrimeCase as follows:
+[source,java]
+----
+    crimeCaseListPanel = new CrimeCaseListPanel(logic.getFilteredCrimeCaseList());
+
+----
+
+The list investigators/cases command is handled in the logic component
+by a `ListCommand` object which takes in a list type as follows:
+[source,java]
+----
+ListCommand(String listType);
+----
+Depending on the `listType` input, a different list would be returned
+to the `model` component and trigger for a `SwapTabEvent`
+
+In the case of an 'investigators' `listType` input, the `model` gets
+updated as shown below
+[source, java]
+----
+model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+            EventsCenter.getInstance().post(new SwapTabEvent(0));
+----
+
+In the case of an 'cases' `listType` input, the `model` gets
+updated as shown below
+[source, java]
+----
+model.updateFilteredCrimeCaseList(PREDICATE_SHOW_ALL_CASES);
+            EventsCenter.getInstance().post(new SwapTabEvent(1));
+----
+
+==== Alternatives Considered
+===== Aspect: Design of list
+* **Alternative 1 (Current Choice)**: Have the same `ListCommand` object
+for listing of investigators and cases.
+** Pros: Easier to code and requires less `Class` files.
+** Cons: Users have to type an extra space whenever they want to list something.
+
+* **Alternative 2 **: Separate into `ListInvestigators` and `ListCases`
+for listing of investigators and cases.
+** Pros: More object oriented style and can be treated as separate entities.
+** Cons: Requires much more modifications when other types of listing come into
+play in future versions (i.e `Witness`, `Evidence`).
+
 === Undo/Redo feature
 ==== Current Implementation
 
@@ -362,12 +458,91 @@ image::UndoRedoActivityDiagram.png[width="650"]
 ** Cons: Requires dealing with commands that have already been undone: We must remember to skip these commands. Violates Single Responsibility Principle and Separation of Concerns as `HistoryManager` now needs to do two * different things.
 // end::undoredo[]
 
-// tag::dataencryption[]
+//tag::findinvesttags[]
+=== Find investigators according to its tags feature
+==== Reason for Implementation
+The purpose of having tags associated to an investigator is to store certain information such as the team he is in
+and the level of his experience. One of the aims of Investigapptor is to provide ease in managing and retrieving information that is required.
+Hence, this implementation is in line with the aim where investigators that belongs to a certain team/category can be
+filtered out efficiently.
+
+Without this implementation, it is inefficient as the user may have to browse through *all* the listed investigators to find an investigator that belongs
+to a certain team/category.
+
+==== Current Implementation
+A command called `findInvestTags` was created under the logic component with the java class `FindInvestTagsCommand.java`. Additionally,
+a parser, `FindInvestTagsCommandParser.java` was being used to parse the arguments required for the command to work. This command
+will display the investigator(s) whose tags that matches with *ANY* of the arguments stated in the command.
+
+Under the main commands parser, `InvestigapptorParser.java`, a case scenario for `findInvestTags` alongside with its alias was being implemented.
+[source,java]
+----
+case FindInvestTagsCommand.COMMAND_WORD:
+case FindInvestTagsCommand.COMMAND_ALIAS:
+    return new FindInvestTagsCommandParser().parse(arguments);
+----
+
+The parser, `FindInvestTagsCommandParser()` will be invoked to parse the arguments specified by the user input with the following implementation.
+The comparison is done in lowercase to prevent any comparison errors due to case sensitivity.
+[source,java]
+----
+public FindInvestTagsCommand parse(String args) throws ParseException {
+        String trimmedArgs = args.trim();
+        if (trimmedArgs.isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, FindInvestTagsCommand.MESSAGE_USAGE));
+        }
+
+        String[] nameKeywords = trimmedArgs.toLowerCase().split("\\s+");
+
+        return new FindInvestTagsCommand(new TagContainsKeywordsPredicate(Arrays.asList(nameKeywords)));
+    }
+----
+
+While parsing the arguments, a `TagContainsKeywordsPredicate` object was created to test whether any keywords
+matches with any tags of the investigator(s). The comparison was implemented in the following code segment.
+[source,java]
+----
+public boolean test(Person person) {
+    return keywords.stream().anyMatch(person.getTagsRaw()::contains);
+}
+----
+
+After the parsing the arguments, a `FindInvestTagsCommand` object will be constructed with the `TagContainsKeywordPredicate`
+object as the attribute and returned to `InvestigapptorParser`.
+
+The `findInvestTags` command will then be executed and the observable list `filteredPersonList` will be updated with the investigators
+whose tags matches the predicate keywords. The following segment shows the execution code.
+[source,java]
+----
+ public CommandResult execute() {
+    model.updateFilteredPersonList(predicate);
+    return new CommandResult(getMessageForPersonListShownSummary(model.getFilteredPersonList().size()));
+}
+----
+
+The result of the number of people listed will be shown under the `ResultDisplay` UI, and the investigators found
+in the `filteredPersonList` will be displayed under the `InvestigatorListPanel`.
+
+//end::findinvesttags[]
+
+//tag::calendargraph[]
+=== Calendar/graph feature
+==== Reason for implementation
+Hand-over of cases is critical in investigation processes and such information has to be documented down.
+By having a calendar/graph for each case and investigator, it can provide a chronological flow of the investigators
+that has handled the case.
+
+==== Current implementation
+Usage of CalendarFX (To be updated - coming in v2.0)
+
+//end::calendargraph[]
+
+//tag::dataencryption[]
 === [Proposed] Data Encryption
 
 _{Explain here how the data encryption feature will be implemented}_
 
-// end::dataencryption[]
+//end::dataencryption[]
 
 === Logging
 
@@ -388,6 +563,309 @@ We are using `java.util.logging` package for logging. The `LogsCenter` class is 
 === Configuration
 
 Certain properties of the application can be controlled (e.g App name, logging level) through the configuration file (default: `config.json`).
+
+=== Investigator Class
+
+The `Investigator` package is a extended from the `Person` package, allowing it to handle the basic functions of a `Person` package while
+having additional properties required for an investigator. The additional properties are:
+
+* `Rank`
++
+Stores the rank of the investigator
+
+* `UniqueCrimeCaseList`
++
+Stores and manages all the CrimeCases which the investigator is in charge of.
+
+==== Model
+
+Currently the `Investigator` is upcasted and stored in the `Investigapptor` 's `UniquePersonList`.
+This is done on purpose to allow future enhancement that allows us to implement types of people such as suspects and witnesses. Storing them together makes it easier to use general
+functions.
+
+The code below is from the `syncWithMasterTagList` function. It shows that
+both Investigator and Person type are both return into the `UniquePersonList`.
+
+        if (person instanceof Investigator) {
+            Set<CrimeCase> cases = new HashSet<>();
+            Investigator inv = (Investigator) person;
+            inv.getCrimeCases().forEach(crimeCase -> cases.add(crimeCase));
+            return new Investigator(person.getName(), person.getPhone(), person.getEmail(),
+                    person.getAddress(), ((Investigator) person).getRank(), correctTagReferences, cases);
+        }
+        return new Person(
+                person.getName(), person.getPhone(), person.getEmail(), person.getAddress(), correctTagReferences);
+
+==== Storage
+
+As Investigator has addition properties compared to Person, `XmlAdaptedInvestigator` is created to convert
+the `Investigator` into correct XML format. We had to also change the method of storing the in `Investigapptor`
+the different classes have to be converted and stored in the correct format. To accomplish this,
+two new methods were added which each return a person only list and a investigator only list to store them
+separately
+
+This function will return only `Investigator` in the list
+
+    public ObservableList<Investigator> investigatorList() {
+        Iterator irt = iterator();
+        ObservableList<Investigator> investigators = FXCollections.observableArrayList();
+        while (irt.hasNext()) {
+            Object element = irt.next();
+            if (element instanceof Investigator) {
+                investigators.add((Investigator) element);
+            }
+        }
+        return investigators;
+    }
+
+This function will only return `Person` in the list
+
+    public ObservableList<Person> personOnlyList() {
+        Iterator irt = iterator();
+        ObservableList<Person> persons = FXCollections.observableArrayList();
+        while (irt.hasNext()) {
+            Object element = irt.next();
+            if (!(element instanceof Investigator)) {
+                persons.add((Person) element);
+            }
+        }
+        return persons;
+    }
+
+As more type of people are added, more function to differentiate the UniquePersonList.
+
+=== CrimeCase Package
+
+The `CrimeCase` package consists of multiple classes used to contain information about a case.
+
+==== `CaseName` class +
+
+Stores a `String` that represents the name of the case. Provides utility methods to check the validity of the string to be stored, retrieve the string that is stored, and obtain the hash code of the `CaseName` object.
+
+    /**
+     * Constructs a {@code Name}.
+     *
+     * @param name A valid name.
+     */
+    public CaseName(String name)
+
+==== `Description` class +
+
+Stores a `String` that represents the description of the case. Provides utility methods to:
+* check the validity of the string to be stored
+* retrieve the string that is stored
+* obtain the hash code of the `Description` object
+
+    /**
+     * Constructs a {@code Description}.
+     *
+     * @param description A valid description.
+     */
+    public Description(String description)
+
+==== `StartDate` class +
+
+Stores a `String` that represents the start date of the case. Provides utility methods to check the validity of the string to be stored, retrieve the string that is stored, and obtain the hash code of the `StartDate` object.
+
+    /**
+     * Constructs a {@code date}.
+     *
+     * @param date A valid date.
+     */
+    public StartDate(String date)
+
+==== `Status` class +
+
+Stores a `String` that represents the status of the case. The class only stores strings of value "open" or "close", with the default value set to "open" when the constructor is called. Provides utility methods to toggle the status of the case, retrieve the string that is stored, and obtain the hash code of the `Status` object.
+
+    /**
+     * Constructs a {@code Status}.
+     *
+     */
+    public Status()
+
+==== `CrimeCase` class +
+
+Stores `CaseName`, `Description`, `Person`, `StartDate`, `Status`, and `UniqueTagList` objects to represent information of the case. Provides utility methods to retrieve the different objects, delete a tag, and obtain the hash code of the `CrimeCase` object.
+
+   /**
+     * Constructs a {@code CrimeCase}.
+     * Every field must be present and not null
+     */
+    public CrimeCase(CaseName name, Description description, Person currentInvestigator, StartDate startDate, Status status, Set<Tag> tags)
+
+=== Adding cases feature
+
+==== Current Implementation
+
+===== Logic
+
+* `AddCaseCommandParser`
+
+`AddCaseCommandParser` parses the given `String` of arguments in the context of the `AddCaseCommand` and returns an `AddCaseCommand` object for execution. A `ParseException` is thrown if the user input does not conform to the expected format.
+
+    public AddCaseCommand parse(String args) throws ParseException {
+        ArgumentMultimap argMultimap =
+                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_DESCRIPTION, PREFIX_INVESTIGATOR,
+                        PREFIX_STARTDATE, PREFIX_TAG);
+        if (!arePrefixesPresent(argMultimap, PREFIX_NAME, PREFIX_DESCRIPTION, PREFIX_INVESTIGATOR, PREFIX_STARTDATE)
+                || !argMultimap.getPreamble().isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCaseCommand.MESSAGE_USAGE));
+        }
+        ...
+    }
+
+* `AddCaseCommand`
+
+The `AddCaseCommand` that extends the `UndoableCommand` class is implemented with two overloaded constructors, either of which can be used depending on convenience:
+
+    /**
+     * Creates an AddCaseCommand to add the specified {@code CrimeCase}
+     */
+    public AddCaseCommand(CrimeCase crimeCase)
+
+    /**
+     * @param name of the case to be added
+     * @param description of the case to be added
+     * @param investigatorIndex of the investigator to be added
+     * @param startDate of the case to be added
+     * @param tagList of the case to be added
+     */
+    public AddCaseCommand(CaseName name, Description description, Index investigatorIndex, StartDate startDate, Set<Tag> tagList)
+
+Since `AddCaseCommand` extends `UndoableCommand`, after the constructor is called, the `preprocessUndoableCommand` and `executeUndoableCommand` methods are executed consecutively right after.
+
+If the `AddCaseCommand(CrimeCase crimeCase)` constructor is used, the logic in the `preprocessUndoableCommand` method is not executed.
+
+Note that the `AddCaseCommand(CaseName name, Description description, Index investigatorIndex, StartDate startDate, Set<Tag> tagList)` constructor above takes in an `Index` object as a parameter, which refers to the index number of the investigator as displayed in `PersonListPanel`.
+
+The `Person` object is retrieved based on the index and the created `CrimeCase` object is stored in `toAdd`:
+
+    @Override
+    protected void preprocessUndoableCommand() throws CommandException {
+        if (investigatorIndex != null) {
+            List<Person> lastShownList = model.getFilteredPersonList();
+            if (investigatorIndex.getZeroBased() >= lastShownList.size()) {
+                throw new CommandException(Messages.MESSAGE_INVALID_INVESTIGATOR_DISPLAYED_INDEX);
+            }
+            Person investigatorToAdd = lastShownList.get(investigatorIndex.getZeroBased());
+            toAdd = createCrimeCase(investigatorToAdd);
+        }
+    }
+
+The `executeUndoableCommand` then adds the `CrimeCase` object to the model and throws a `DuplicateCrimeCaseException` if there exists an identical object:
+
+    @Override
+    public CommandResult executeUndoableCommand() throws CommandException {
+        requireNonNull(model);
+        try {
+            model.addCrimeCase(toAdd);
+            return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd));
+        } catch (DuplicateCrimeCaseException e) {
+            throw new CommandException(MESSAGE_DUPLICATE_CASE);
+        }
+    }
+
+=== Deleting cases feature
+
+==== Current Implementation
+
+===== Logic
+
+* `DeleteCaseCommandParser`
+
+`DeleteCaseCommandParser` parses the given `String` of arguments in the context of the `DeleteCaseCommand` and returns an `DeleteCaseCommand` object for execution. A `ParseException` is thrown if the user input does not conform to the expected format.
+
+    public DeleteCaseCommand parse(String args) throws ParseException {
+        try {
+            Index index = ParserUtil.parseIndex(args);
+            return new DeleteCaseCommand(index);
+        } catch (IllegalValueException ive) {
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCaseCommand.MESSAGE_USAGE));
+        }
+    }
+
+* `DeleteCaseCommand`
+
+`preprocessUndoableCommand` first retrieves the `CrimeCase` object based on the `Index` given. The `DeleteCaseCommand` will then be executed to remove the case from the application and update the model. `EventsCenter` reacts to the `SwapTabEvent`, which switches the tab to show the list of cases. The following segment shows the execution code.
+
+    public CommandResult executeUndoableCommand() {
+        requireNonNull(caseToDelete);
+        try {
+            model.deleteCrimeCase(caseToDelete);
+            EventsCenter.getInstance().post(new SwapTabEvent(1));
+        } catch (CrimeCaseNotFoundException pnfe) {
+            throw new AssertionError("The target case cannot be missing");
+        }
+        return new CommandResult(String.format(MESSAGE_DELETE_CASE_SUCCESS, caseToDelete));
+    }
+
+=== Finding cases feature
+
+==== Current Implementation
+
+===== Logic
+
+* `FindCaseCommandParser`
+
+`FindCaseCommandParser` parses the given `String` of arguments in the context of the `FindCaseCommand` and returns an `FindCaseCommand` object for execution. A `ParseException` is thrown if the user input does not conform to the expected format.
+
+    public FindCaseCommand parse(String args) throws ParseException {
+        String trimmedArgs = args.trim();
+        if (trimmedArgs.isEmpty()) {
+            throw new ParseException(
+                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, FindCaseCommand.MESSAGE_USAGE));
+        }
+        String[] nameKeywords = trimmedArgs.split("\\s+");
+        return new FindCaseCommand(new CaseNameContainsKeywordsPredicate(Arrays.asList(nameKeywords)));
+    }
+
+* `FindCaseCommand`
+
+The `FindCaseCommand` will then be executed and the observable list filteredCrimeCaseList will be updated with the cases whose case name matches the predicate keywords. `EventsCenter` reacts to the `SwapTabEvent`, which switches the tab to show the filtered list of cases. The following segment shows the execution code.
+
+    public CommandResult execute() {
+        model.updateFilteredCrimeCaseList(predicate);
+        EventsCenter.getInstance().post(new SwapTabEvent(1));
+        return new CommandResult(getMessageForCrimeCaseListShownSummary(model.getFilteredCrimeCaseList().size()));
+    }
+
+=== Creating Backup
+
+As investigators may want to save the current state of the application before progressing, they can do this
+by using the backup command and typing in a name for the backup.
+
+eg: backup 3rdMarch
+
+The data is saved whenever an `InvestigapptorChangeedEvent` is raised in the Model component
+
+This method is commonly called after adding, editing of deleting any information
+
+    private void indicateInvestigapptorChanged() {
+            raise(new InvestigapptorChangedEvent(investigapptor));
+        }
+
+The event contains information which will be passed to Storage component to start the saving sequence.
+In order to create our own backup xml, additional information such as filename has to be passed in.
+Hence a new event `InvestigapptorBackupEvent` is create for this specific.
+
+    public void backUpInvestigapptor(String fileName) {
+        raise(new InvestigapptorBackupEvent(investigapptor, fileName));
+    }
+
+`backupInvestigapptor` is call when the investigator uses the backup command and event is raised, The
+`Storage` package will handle the event and create a new backup.
+
+    public void handleInvestigapptorBackupEvent(InvestigapptorBackupEvent event) {
+        logger.info(LogsCenter.getEventHandlingLogMessage(event, "Local data changed, saving to file"));
+        try {
+            backupInvestigapptor(event.data, event.fileName);
+        } catch (IOException e) {
+            raise(new DataSavingExceptionEvent(e));
+        }
+    }
+
 
 == Documentation
 
@@ -490,7 +968,7 @@ When a pull request has changes to asciidoc files, you can use https://www.netli
 
 Here are the steps to create a new release.
 
-.  Update the version number in link:{repoURL}/src/main/java/seedu/address/MainApp.java[`MainApp.java`].
+.  Update the version number in link:{repoURL}/src/main/java/seedu/investigapptor/MainApp.java[`MainApp.java`].
 .  Generate a JAR file <<UsingGradle#creating-the-jar-file, using Gradle>>.
 .  Tag the repo with the version number. e.g. `v0.1`
 .  https://help.github.com/articles/creating-releases/[Create a new release using GitHub] and upload the JAR file you created.
@@ -803,23 +1281,25 @@ See this https://github.com/se-edu/addressbook-level4/pull/599[PR] for the step-
 *** This would allow for an added layer of security and prevent viewing of data outside the application.
 
 * *Marcus Chen*
-** *Major enhancement*: Implement suspects and witness into investigapptor
-*** This feature allows investigator to easily view suspects and witness related to the cases they are investigating
+** *Major enhancement*: Implement the Investigator package and refactoring the model and logic for the Investigator
+*** This required to as the investigapptor requires a new person class to store the and handle the new additional data
+required.
 ** *Minor enhancement*: Implement `backup` command
 *** This feature helps the investigator to create a separate save file of the current state of the investigapptor and name it.
 
 * *Poh Kai Jun*
-** *Major Enhancement*: Support for evidence package (Add, Delete, Update, View, Search)
-*** This feature allows cases to store evidences details related to the case.
+** *Major Enhancement*: Support for calendar and graph
+*** This feature allows an overview of the chronological flow of each case handover and number of cases handled by each investigator
 ** *Minor Enhancement*: Implement `findtags` command(s)
 *** This feature helps the users to filter out investigators/cases that are in a certain team/category according
 to their search input.
 
 * *Quentin Khoo*
-** *Major enhancement*: Support notifying investigators when they get assigned a case
-*** This would allow for investigators to be aware when they get assigned a case to solve.
-** *Minor enhancement*: Add command aliases for most commands
-*** These aliases can be used in place of the full commands for the investigator's convenience.
+** *Major enhancement*: Support access control by implementing a password prompt upon starting the application
+*** This would deter non-authorised users from accessing the application
+** *Minor enhancement*: Add UI support for listing investigators and crime cases
+*** This would provide convenience for the investigator in deciding which investigator to assign to which case depending
+on his or her expertise
 
 [appendix]
 == User Stories
@@ -857,6 +1337,8 @@ Priorities: High (must have) - `* * \*`, Medium (nice to have) - `* \*`, Low (un
 
 |`* * *` |investigator |view an investigator |view their address
 
+|`* * *` |investigator |view all investigators on the team|choose who to assign to a case
+
 |`* * *` |investigator |view a case |view its name
 
 |`* * *` |investigator |view a case |view its description
@@ -867,6 +1349,10 @@ Priorities: High (must have) - `* * \*`, Medium (nice to have) - `* \*`, Low (un
 
 |`* * *` |investigator |view a case |view its end date
 
+|`* * *` |investigator |find investigators by tags |view who are under a certain team/category
+
+|`* * *` |investigator |view all cases assigned to the team|see their details
+
 |`* * *` |investigator |delete an investigator |remove retired investigators
 
 |`* * *` |investigator |delete a case |easier manage the list of cases
@@ -874,6 +1360,8 @@ Priorities: High (must have) - `* * \*`, Medium (nice to have) - `* \*`, Low (un
 |`* * *` |investigator |find an investigator by name |locate details of investigator without having to go through the entire list
 
 |`* * *` |investigator |find a case by name |locate details of case without having to go through the entire list
+
+|`* * *` |investigator |have a password for the application |deter non authorized users from accessing the application
 
 |`* *` |investigator |hide <<private-contact-detail,private contact details>> by default |minimize chance of someone unauthorized from seeing them by accident
 
@@ -886,6 +1374,10 @@ Priorities: High (must have) - `* * \*`, Medium (nice to have) - `* \*`, Low (un
 |`*` |investigator |add a suspect |add suspects to a case
 
 |`*` |investigator |add evidence |add evidence to a case
+
+|`*` |investigator |save the information |to review them in the future
+
+|`*` |investigator |create a backup |to restore to past states
 
 |`*` |investigator |add case witnesses |classify witnesses under certain cases
 
@@ -993,8 +1485,8 @@ Use case resumes at step 3.
 *MSS*
 
 1.  Investigapptor shows a list of persons
-2.  User add a case to select investigator by index with case information
-3.  Case is added to investigator
+2.  User requests to add a new case by keying in case details and specifying an investigator from the list
+3.  Investigapptor creates a new case
 +
 Use case ends.
 
@@ -1029,6 +1521,22 @@ Use case resumes at step 2.
 +
 Use case ends.
 
+=== Use case: Display Help
+
+*MSS*
+
+1.  User types in the new backup's name
+
+2.  Success message appears
++
+Use case ends.
+
+*Extensions*
+
+[none]
+* 1a. Backup's name is not alphanumerical
++
+Use case resumes at step 1
 
 _{More to be added}_
 

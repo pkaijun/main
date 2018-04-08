@@ -15,23 +15,37 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import seedu.investigapptor.logic.commands.AddCaseCommand;
 import seedu.investigapptor.logic.commands.ClearCommand;
 import seedu.investigapptor.logic.commands.DeleteInvestigatorCommand;
 import seedu.investigapptor.logic.commands.EditInvestigatorCommand;
 import seedu.investigapptor.logic.commands.EditInvestigatorCommand.EditPersonDescriptor;
 import seedu.investigapptor.logic.commands.ExitCommand;
-import seedu.investigapptor.logic.commands.FindCommand;
+import seedu.investigapptor.logic.commands.FindCaseCommand;
+import seedu.investigapptor.logic.commands.FindInvestigatorCommand;
 import seedu.investigapptor.logic.commands.HelpCommand;
 import seedu.investigapptor.logic.commands.HistoryCommand;
-import seedu.investigapptor.logic.commands.ListCommand;
+import seedu.investigapptor.logic.commands.ListCaseCommand;
+import seedu.investigapptor.logic.commands.ListInvestigatorCommand;
 import seedu.investigapptor.logic.commands.RedoCommand;
 import seedu.investigapptor.logic.commands.RegisterInvestigatorCommand;
 import seedu.investigapptor.logic.commands.SelectInvestigatorCommand;
 import seedu.investigapptor.logic.commands.UndoCommand;
 import seedu.investigapptor.logic.parser.exceptions.ParseException;
+import seedu.investigapptor.model.Investigapptor;
+import seedu.investigapptor.model.Model;
+import seedu.investigapptor.model.ModelManager;
+import seedu.investigapptor.model.UserPrefs;
+import seedu.investigapptor.model.crimecase.CaseNameContainsKeywordsPredicate;
+import seedu.investigapptor.model.crimecase.CrimeCase;
 import seedu.investigapptor.model.person.NameContainsKeywordsPredicate;
 import seedu.investigapptor.model.person.Person;
+import seedu.investigapptor.model.person.investigator.Investigator;
+import seedu.investigapptor.testutil.CrimeCaseBuilder;
+import seedu.investigapptor.testutil.CrimeCaseUtil;
 import seedu.investigapptor.testutil.EditPersonDescriptorBuilder;
+import seedu.investigapptor.testutil.InvestigatorBuilder;
+import seedu.investigapptor.testutil.InvestigatorUtil;
 import seedu.investigapptor.testutil.PersonBuilder;
 import seedu.investigapptor.testutil.PersonUtil;
 
@@ -40,21 +54,46 @@ public class InvestigapptorParserTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private final InvestigapptorParser parser = new InvestigapptorParser();
+    private Model model = new ModelManager(new Investigapptor(), new UserPrefs());
 
+    //@@author leowweiching
     @Test
     public void parseCommand_add() throws Exception {
-        Person person = new PersonBuilder().build();
+        Investigator investigator = new InvestigatorBuilder().build();
+        CrimeCase crimeCase = new CrimeCaseBuilder().withInvestigator(investigator).build();
+        AddCaseCommand command = (AddCaseCommand)
+                parser.parseCommand(CrimeCaseUtil.getAddCommand(crimeCase) + "i/" + INDEX_FIRST_PERSON.getOneBased());
+        assertEquals(new AddCaseCommand(crimeCase.getCaseName(), crimeCase.getDescription(),
+                INDEX_FIRST_PERSON, crimeCase.getStartDate(), crimeCase.getTags()), command);
+    }
+
+    //@@author leowweiching
+    @Test
+    public void parseCommand_addAlias() throws Exception {
+        Investigator investigator = new InvestigatorBuilder().build();
+        CrimeCase crimeCase = new CrimeCaseBuilder().withInvestigator(investigator).build();
+        AddCaseCommand command = (AddCaseCommand)
+                parser.parseCommand(CrimeCaseUtil.getAliasAddCommand(crimeCase)
+                        + "i/" + INDEX_FIRST_PERSON.getOneBased());
+        assertEquals(new AddCaseCommand(crimeCase.getCaseName(), crimeCase.getDescription(),
+                INDEX_FIRST_PERSON, crimeCase.getStartDate(), crimeCase.getTags()), command);
+    }
+
+    //@@author
+    @Test
+    public void parseCommand_reg() throws Exception {
+        Investigator investigator = new InvestigatorBuilder().build();
         RegisterInvestigatorCommand command = (RegisterInvestigatorCommand)
-                parser.parseCommand(PersonUtil.getAddCommand(person));
-        assertEquals(new RegisterInvestigatorCommand(person), command);
+                parser.parseCommand(InvestigatorUtil.getRegCommand(investigator));
+        assertEquals(new RegisterInvestigatorCommand(investigator), command);
     }
 
     @Test
-    public void parseCommand_addAlias() throws Exception {
-        Person person = new PersonBuilder().build();
+    public void parseCommand_regAlias() throws Exception {
+        Investigator investigator = new InvestigatorBuilder().build();
         RegisterInvestigatorCommand command = (RegisterInvestigatorCommand)
-                parser.parseCommand(PersonUtil.getAliasAddCommand(person));
-        assertEquals(new RegisterInvestigatorCommand(person), command);
+                parser.parseCommand(InvestigatorUtil.getAliasRegCommand(investigator));
+        assertEquals(new RegisterInvestigatorCommand(investigator), command);
     }
 
     @Test
@@ -115,20 +154,38 @@ public class InvestigapptorParserTest {
         assertTrue(parser.parseCommand(ExitCommand.COMMAND_ALIAS + " 3") instanceof ExitCommand);
     }
 
+    //@@author leowweiching-reused
     @Test
-    public void parseCommand_find() throws Exception {
+    public void parseCommand_findCase() throws Exception {
         List<String> keywords = Arrays.asList("foo", "bar", "baz");
-        FindCommand command = (FindCommand) parser.parseCommand(
-                FindCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
-        assertEquals(new FindCommand(new NameContainsKeywordsPredicate(keywords)), command);
+        FindCaseCommand command = (FindCaseCommand) parser.parseCommand(
+                FindCaseCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
+        assertEquals(new FindCaseCommand(new CaseNameContainsKeywordsPredicate(keywords)), command);
+    }
+
+    //@@author leowweiching-reused
+    @Test
+    public void parseCommand_findCaseAlias() throws Exception {
+        List<String> keywords = Arrays.asList("foo", "bar", "baz");
+        FindCaseCommand command = (FindCaseCommand) parser.parseCommand(
+                FindCaseCommand.COMMAND_ALIAS + " " + keywords.stream().collect(Collectors.joining(" ")));
+        assertEquals(new FindCaseCommand(new CaseNameContainsKeywordsPredicate(keywords)), command);
     }
 
     @Test
-    public void parseCommand_findAlias() throws Exception {
+    public void parseCommand_findInvestigator() throws Exception {
         List<String> keywords = Arrays.asList("foo", "bar", "baz");
-        FindCommand command = (FindCommand) parser.parseCommand(
-                FindCommand.COMMAND_ALIAS + " " + keywords.stream().collect(Collectors.joining(" ")));
-        assertEquals(new FindCommand(new NameContainsKeywordsPredicate(keywords)), command);
+        FindInvestigatorCommand command = (FindInvestigatorCommand) parser.parseCommand(
+                FindInvestigatorCommand.COMMAND_WORD + " " + keywords.stream().collect(Collectors.joining(" ")));
+        assertEquals(new FindInvestigatorCommand(new NameContainsKeywordsPredicate(keywords)), command);
+    }
+
+    @Test
+    public void parseCommand_findInvestigatorAlias() throws Exception {
+        List<String> keywords = Arrays.asList("foo", "bar", "baz");
+        FindInvestigatorCommand command = (FindInvestigatorCommand) parser.parseCommand(
+                FindInvestigatorCommand.COMMAND_ALIAS + " " + keywords.stream().collect(Collectors.joining(" ")));
+        assertEquals(new FindInvestigatorCommand(new NameContainsKeywordsPredicate(keywords)), command);
     }
 
     @Test
@@ -170,15 +227,27 @@ public class InvestigapptorParserTest {
     }
 
     @Test
-    public void parseCommand_list() throws Exception {
-        assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD) instanceof ListCommand);
-        assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD + " 3") instanceof ListCommand);
+    public void parseCommand_listInvestigators() throws Exception {
+        assertTrue(parser.parseCommand("listinvestigators") instanceof ListInvestigatorCommand);
+        assertTrue(parser.parseCommand(ListInvestigatorCommand.COMMAND_WORD) instanceof ListInvestigatorCommand);
     }
 
     @Test
-    public void parseCommand_listAlias() throws Exception {
-        assertTrue(parser.parseCommand(ListCommand.COMMAND_ALIAS) instanceof ListCommand);
-        assertTrue(parser.parseCommand(ListCommand.COMMAND_ALIAS + " 3") instanceof ListCommand);
+    public void parseCommand_listInvestigatorsAlias() throws Exception {
+        assertTrue(parser.parseCommand("li") instanceof ListInvestigatorCommand);
+        assertTrue(parser.parseCommand(ListInvestigatorCommand.COMMAND_ALIAS) instanceof ListInvestigatorCommand);
+    }
+
+    @Test
+    public void parseCommand_listCases() throws Exception {
+        assertTrue(parser.parseCommand("listcases") instanceof ListCaseCommand);
+        assertTrue(parser.parseCommand(ListCaseCommand.COMMAND_WORD) instanceof ListCaseCommand);
+    }
+
+    @Test
+    public void parseCommand_listCasesAlias() throws Exception {
+        assertTrue(parser.parseCommand("lc") instanceof ListCaseCommand);
+        assertTrue(parser.parseCommand(ListCaseCommand.COMMAND_ALIAS) instanceof ListCaseCommand);
     }
 
     @Test

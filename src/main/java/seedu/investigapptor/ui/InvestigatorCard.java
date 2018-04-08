@@ -13,7 +13,8 @@ import seedu.investigapptor.model.person.investigator.Investigator;
 public class InvestigatorCard extends UiPart<Region> {
 
     private static final String FXML = "InvestigatorListCard.fxml";
-    private static final String[] LABEL_COLOR = {"red", "yellow", "blue", "orange", "pink", "olive", "black"};
+    private static final String[] LABEL_COLOR = {"red", "yellow", "blue", "orange", "pink", "olive", "black",
+        "brown", "gray", "green", "beige", "lightblue", "golden", "purple"};
 
     /**
      * Note: Certain keywords such as "location" and "resources" are reserved keywords in JavaFX.
@@ -38,6 +39,8 @@ public class InvestigatorCard extends UiPart<Region> {
     @FXML
     private Label email;
     @FXML
+    private Label rank;
+    @FXML
     private FlowPane crimeCaseList;
     @FXML
     private FlowPane tags;
@@ -50,6 +53,11 @@ public class InvestigatorCard extends UiPart<Region> {
         phone.setText(investigator.getPhone().value);
         address.setText(investigator.getAddress().value);
         email.setText(investigator.getEmail().value);
+        if (investigator instanceof Investigator) {
+            rank.setText((investigator).getRank().toString());
+        } else {
+            rank.setText("No Rank");
+        }
         colorCase(investigator);
         colorTag(investigator);
     }

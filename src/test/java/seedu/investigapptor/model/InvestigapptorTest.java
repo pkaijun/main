@@ -68,6 +68,12 @@ public class InvestigapptorTest {
     }
 
     @Test
+    public void getCrimeCaseList_modifyList_throwsUnsupportedOperationException() {
+        thrown.expect(UnsupportedOperationException.class);
+        investigapptor.getCrimeCaseList().remove(0);
+    }
+
+    @Test
     public void getPersonList_modifyList_throwsUnsupportedOperationException() {
         thrown.expect(UnsupportedOperationException.class);
         investigapptor.getPersonList().remove(0);
@@ -120,6 +126,22 @@ public class InvestigapptorTest {
         assertEquals(new ModelManager(expectedInvestigapptor, userPrefs), modelManager);
     }
 
+    @Test
+    public void setPassword_passwordAdded() throws Exception {
+        Investigapptor investigapptorAddedPassword = new Investigapptor("password");
+        Password expectedPassword = new Password("password");
+        Password investigapptorPassword = investigapptorAddedPassword.getPassword();
+        assertEquals(expectedPassword, investigapptorPassword);
+    }
+
+    @Test
+    public void updatePassword_passwordChanged_passwordUpdated() throws Exception {
+        Investigapptor investigapptorWithNewPassword = new InvestigapptorBuilder().withPassword("oldPassword").build();
+        investigapptorWithNewPassword.updatePassword(new Password("newPassword"));
+        Investigapptor expectedInvestigapptor = new InvestigapptorBuilder().withPassword("newPassword").build();
+        assertEquals(investigapptorWithNewPassword, expectedInvestigapptor);
+    }
+
     /**
      * A stub ReadOnlyInvestigapptor whose persons and tags lists can violate interface constraints.
      */
@@ -127,6 +149,9 @@ public class InvestigapptorTest {
         private final ObservableList<Person> persons = FXCollections.observableArrayList();
         private final ObservableList<CrimeCase> cases = FXCollections.observableArrayList();
         private final ObservableList<Tag> tags = FXCollections.observableArrayList();
+        private final ObservableList<Investigator> investigators = FXCollections.observableArrayList();
+        private final ObservableList<Person> personsOnly = FXCollections.observableArrayList();
+        private final Password password = new Password("password");
 
         InvestigapptorStub(Collection<Person> persons, Collection<? extends Tag> tags) {
             this.persons.setAll(persons);
@@ -146,6 +171,21 @@ public class InvestigapptorTest {
         @Override
         public ObservableList<Tag> getTagList() {
             return tags;
+        }
+
+        @Override
+        public ObservableList<Investigator> getInvestigatorList() {
+            return investigators;
+        }
+
+        @Override
+        public ObservableList<Person> getPersonOnlyList() {
+            return personsOnly;
+        }
+
+        @Override
+        public Password getPassword() {
+            return password;
         }
     }
 

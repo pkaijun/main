@@ -33,8 +33,8 @@ import seedu.investigapptor.TestApp;
 import seedu.investigapptor.commons.core.EventsCenter;
 import seedu.investigapptor.commons.core.index.Index;
 import seedu.investigapptor.logic.commands.ClearCommand;
-import seedu.investigapptor.logic.commands.FindCommand;
-import seedu.investigapptor.logic.commands.ListCommand;
+import seedu.investigapptor.logic.commands.FindInvestigatorCommand;
+import seedu.investigapptor.logic.commands.ListInvestigatorCommand;
 import seedu.investigapptor.logic.commands.SelectInvestigatorCommand;
 import seedu.investigapptor.model.Investigapptor;
 import seedu.investigapptor.model.Model;
@@ -101,6 +101,9 @@ public abstract class InvestigapptorSystemTest {
         return mainWindowHandle.getCommandBox();
     }
 
+    public CommandBoxHandle getCommandBoxDisplay() {
+        return mainWindowHandle.getCommandBoxDisplay(); }
+
     public PersonListPanelHandle getPersonListPanel() {
         return mainWindowHandle.getPersonListPanel();
     }
@@ -140,7 +143,7 @@ public abstract class InvestigapptorSystemTest {
      * Displays all persons in the investigapptor book.
      */
     protected void showAllPersons() {
-        executeCommand(ListCommand.COMMAND_WORD);
+        executeCommand(ListInvestigatorCommand.COMMAND_WORD);
         assertEquals(getModel().getInvestigapptor().getPersonList().size(), getModel().getFilteredPersonList().size());
     }
 
@@ -148,7 +151,7 @@ public abstract class InvestigapptorSystemTest {
      * Displays all persons with any parts of their names matching {@code keyword} (case-insensitive).
      */
     protected void showPersonsWithName(String keyword) {
-        executeCommand(FindCommand.COMMAND_WORD + " " + keyword);
+        executeCommand(FindInvestigatorCommand.COMMAND_WORD + " " + keyword);
         assertTrue(getModel().getFilteredPersonList().size() < getModel().getInvestigapptor().getPersonList().size());
     }
 

@@ -1,13 +1,16 @@
 package seedu.investigapptor.model.crimecase;
 
+import static seedu.investigapptor.model.crimecase.Status.CASE_CLOSE;
+
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import seedu.investigapptor.model.person.Person;
+import seedu.investigapptor.model.person.investigator.Investigator;
 import seedu.investigapptor.model.tag.Tag;
 import seedu.investigapptor.model.tag.UniqueTagList;
-
+//@@author leowweiching-reused
 /**
  * Represents a Crime Case in the Investigapptor.
  * Guarantees: details are present and not null, field values are validated, immutable.
@@ -16,8 +19,9 @@ public class CrimeCase {
 
     private final CaseName name;
     private final Description description;
-    private final Person currentInvestigator;
-    private final StartDate startDate;
+    private final Date startDate;
+    private final Date endDate;
+    private final Investigator currentInvestigator;
     private final Status status;
 
     private final UniqueTagList tags;
@@ -25,12 +29,13 @@ public class CrimeCase {
     /**
      * Every field must be present and not null
      */
-    public CrimeCase(CaseName name, Description description, Person currentInvestigator,
-                     StartDate startDate, Status status, Set<Tag> tags) {
+    public CrimeCase(CaseName name, Description description, Investigator currentInvestigator,
+                     Date startDate, Date endDate, Status status, Set<Tag> tags) {
         this.name = name;
         this.description = description;
         this.currentInvestigator = currentInvestigator;
         this.startDate = startDate;
+        this.endDate = endDate;
         this.status = status;
         this.tags = new UniqueTagList(tags);
     }
@@ -43,12 +48,16 @@ public class CrimeCase {
         return description;
     }
 
-    public Person getCurrentInvestigator() {
+    public Investigator getCurrentInvestigator() {
         return currentInvestigator;
     }
 
-    public StartDate getStartDate() {
+    public Date getStartDate() {
         return startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
     }
 
     public Status getStatus() {
@@ -62,6 +71,21 @@ public class CrimeCase {
     public Set<Tag> getTags() {
         return Collections.unmodifiableSet(tags.toSet());
     }
+
+    //@@author pkaijun
+    /**
+     * Returns an immutable tag set of type String
+     */
+    public Set<String> getTagsRaw() {
+        Set<String> rawTags = new HashSet<>();
+        for (Tag s : tags) {
+            rawTags.add(s.getRawString().toLowerCase());
+        }
+
+        return rawTags;
+    }
+    //@@author
+
     /**
      * Deletes (@code toDelete) tag
      */
@@ -89,7 +113,7 @@ public class CrimeCase {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, description, currentInvestigator, startDate, status, tags);
+        return Objects.hash(name, startDate, status, tags);
     }
 
     @Override
@@ -99,12 +123,18 @@ public class CrimeCase {
                 .append(" Description: ")
                 .append(getDescription())
                 .append(" Current Investigator: ")
-                .append(getCurrentInvestigator())
-                .append(" Start Date: ")
-                .append(getStartDate())
+                .append(getCurrentInvestigator().getName())
                 .append(" Status: ")
                 .append(getStatus())
-                .append(" Tags: ");
+                .append(" Start Date: ")
+                .append(getStartDate());
+
+        if (getStatus().toString().equals(CASE_CLOSE)) {
+            builder.append(" End Date: ")
+                    .append(getEndDate());
+        }
+
+        builder.append(" Tags: ");
         getTags().forEach(builder::append);
         return builder.toString();
     }

@@ -11,8 +11,11 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import seedu.investigapptor.commons.core.ComponentManager;
 import seedu.investigapptor.commons.core.LogsCenter;
+import seedu.investigapptor.commons.events.model.InvestigapptorBackupEvent;
 import seedu.investigapptor.commons.events.model.InvestigapptorChangedEvent;
+import seedu.investigapptor.logic.commands.exceptions.InvalidPasswordException;
 import seedu.investigapptor.model.crimecase.CrimeCase;
+import seedu.investigapptor.model.crimecase.exceptions.CrimeCaseNotFoundException;
 import seedu.investigapptor.model.crimecase.exceptions.DuplicateCrimeCaseException;
 import seedu.investigapptor.model.person.Person;
 import seedu.investigapptor.model.person.exceptions.DuplicatePersonException;
@@ -37,11 +40,11 @@ public class ModelManager extends ComponentManager implements Model {
         super();
         requireAllNonNull(investigapptor, userPrefs);
 
-        logger.fine("Initializing with investigapptor book: " + investigapptor + " and user prefs " + userPrefs);
+        logger.fine("Initializing with investigapptor: " + investigapptor + " and user prefs " + userPrefs);
 
         this.investigapptor = new Investigapptor(investigapptor);
-        filteredPersons = new FilteredList<>(this.investigapptor.getPersonList());
         filteredCrimeCases = new FilteredList<>(this.investigapptor.getCrimeCaseList());
+        filteredPersons = new FilteredList<>(this.investigapptor.getPersonList());
     }
 
     public ModelManager() {
@@ -86,16 +89,55 @@ public class ModelManager extends ComponentManager implements Model {
         indicateInvestigapptorChanged();
     }
 
+    //@@author leowweiching-reused
+    @Override
+    public synchronized void deleteCrimeCase(CrimeCase target) throws CrimeCaseNotFoundException {
+        investigapptor.removeCrimeCase(target);
+        indicateInvestigapptorChanged();
+    }
+
+    //@@author leowweiching-reused
     @Override
     public synchronized void addCrimeCase(CrimeCase crimecase) throws DuplicateCrimeCaseException {
         investigapptor.addCrimeCase(crimecase);
         updateFilteredCrimeCaseList(PREDICATE_SHOW_ALL_CASES);
         indicateInvestigapptorChanged();
     }
+
+    //@@author leowweiching-reused
+    @Override
+    public void updateCrimeCase(CrimeCase target, CrimeCase editedCase)
+            throws DuplicateCrimeCaseException, CrimeCaseNotFoundException {
+        requireAllNonNull(target, editedCase);
+
+        investigapptor.updateCrimeCase(target, editedCase);
+        indicateInvestigapptorChanged();
+    }
+
+    //@@author
     @Override
     public void deleteTag(Tag toDelete) throws TagNotFoundException {
         investigapptor.deleteTag(toDelete);
     }
+    @Override
+    public void backUpInvestigapptor(String fileName) {
+        raise(new InvestigapptorBackupEvent(investigapptor, fileName));
+    }
+
+    //@@author quentinkhoo
+    @Override
+    public void updatePassword(Password password) throws InvalidPasswordException {
+        investigapptor.updatePassword(password);
+        indicateInvestigapptorChanged();
+    }
+
+    @Override
+    public void removePassword() {
+        investigapptor.removePassword();
+        indicateInvestigapptorChanged();
+    }
+    //@@author
+
     //=========== Filtered Person List Accessors =============================================================
 
     /**
@@ -115,6 +157,7 @@ public class ModelManager extends ComponentManager implements Model {
 
     //=========== Filtered Cases List Accessors =============================================================
 
+    //@@author leowweiching-reused
     /**
      * Returns an unmodifiable view of the list of {@code CrimeCase} backed by the internal list of
      * {@code investigapptor}

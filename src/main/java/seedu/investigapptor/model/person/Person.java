@@ -3,6 +3,7 @@ package seedu.investigapptor.model.person;
 import static seedu.investigapptor.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -15,12 +16,12 @@ import seedu.investigapptor.model.tag.UniqueTagList;
  */
 public class Person {
 
-    private final Name name;
-    private final Phone phone;
-    private final Email email;
-    private final Address address;
+    protected final Name name;
+    protected final Phone phone;
+    protected final Email email;
+    protected final Address address;
 
-    private final UniqueTagList tags;
+    protected final UniqueTagList tags;
 
     /**
      * Every field must be present and not null.
@@ -58,11 +59,28 @@ public class Person {
     public Set<Tag> getTags() {
         return Collections.unmodifiableSet(tags.toSet());
     }
+
+    /**
+     * Returns an immutable tag set of type String
+     */
+    public Set<String> getTagsRaw() {
+        Set<String> rawTags = new HashSet<>();
+        for (Tag s : tags) {
+            rawTags.add(s.getRawString().toLowerCase());
+        }
+
+        return rawTags;
+    }
+
     /**
      * Deletes (@code toDelete) tag
      */
     public void deleteTag(Tag toDelete) {
         tags.delete(toDelete);
+    }
+
+    public boolean isInvestigator() {
+        return false;
     }
 
     @Override

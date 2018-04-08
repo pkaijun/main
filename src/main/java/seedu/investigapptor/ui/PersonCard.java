@@ -6,6 +6,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import seedu.investigapptor.model.person.Person;
+import seedu.investigapptor.model.person.investigator.Investigator;
 
 /**
  * An UI component that displays information of a {@code Person}.
@@ -13,7 +14,8 @@ import seedu.investigapptor.model.person.Person;
 public class PersonCard extends UiPart<Region> {
 
     private static final String FXML = "PersonListCard.fxml";
-    private static final String[] LABEL_COLOR = {"red", "yellow", "blue", "orange", "pink", "olive", "black"};
+    private static final String[] LABEL_COLOR = {"red", "yellow", "blue", "orange", "pink", "olive", "black",
+        "brown", "gray", "green", "beige", "lightblue", "golden", "purple"};
 
     /**
      * Note: Certain keywords such as "location" and "resources" are reserved keywords in JavaFX.
@@ -38,6 +40,8 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label email;
     @FXML
+    private Label rank;
+    @FXML
     private FlowPane tags;
 
     public PersonCard(Person person, int displayedIndex) {
@@ -48,9 +52,16 @@ public class PersonCard extends UiPart<Region> {
         phone.setText(person.getPhone().value);
         address.setText(person.getAddress().value);
         email.setText(person.getEmail().value);
+        if (person.isInvestigator()) {
+            rank.setText(((Investigator) person).getRank().toString());
+
+        } else {
+            rank.setText("No Rank");
+        }
         colorTag(person);
     }
 
+    //@@author pkaijun
     /**
      *
      * Creates tag labels for person
@@ -72,6 +83,7 @@ public class PersonCard extends UiPart<Region> {
         // Hash the tag name to get the corresponding colour
         return LABEL_COLOR[Math.abs(tagName.hashCode()) % LABEL_COLOR.length];
     }
+    //@@author
 
     @Override
     public boolean equals(Object other) {

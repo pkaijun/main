@@ -10,13 +10,17 @@ import java.util.Set;
 import seedu.investigapptor.commons.core.index.Index;
 import seedu.investigapptor.commons.exceptions.IllegalValueException;
 import seedu.investigapptor.commons.util.StringUtil;
+import seedu.investigapptor.logic.commands.exceptions.InvalidPasswordException;
+import seedu.investigapptor.model.Password;
+
 import seedu.investigapptor.model.crimecase.CaseName;
+import seedu.investigapptor.model.crimecase.Date;
 import seedu.investigapptor.model.crimecase.Description;
-import seedu.investigapptor.model.crimecase.StartDate;
 import seedu.investigapptor.model.person.Address;
 import seedu.investigapptor.model.person.Email;
 import seedu.investigapptor.model.person.Name;
 import seedu.investigapptor.model.person.Phone;
+import seedu.investigapptor.model.person.investigator.Rank;
 import seedu.investigapptor.model.tag.Tag;
 
 /**
@@ -44,6 +48,15 @@ public class ParserUtil {
             throw new IllegalValueException(MESSAGE_INVALID_INDEX);
         }
         return Index.fromOneBased(Integer.parseInt(trimmedIndex));
+    }
+
+    /**
+     * Parses a {@code Optional<String> oneBasedIndex} into an {@code Optional<Index>} if {@code oneBasedIndex}
+     * is present. See header comment of this class regarding the use of {@code Optional} parameters.
+     */
+    public static Optional<Index> parseIndex(Optional<String> oneBasedIndex) throws IllegalValueException {
+        requireNonNull(oneBasedIndex);
+        return oneBasedIndex.isPresent() ? Optional.of(parseIndex(oneBasedIndex.get())) : Optional.empty();
     }
 
     /**
@@ -193,30 +206,53 @@ public class ParserUtil {
     }
 
     /**
-     * Parses a {@code String investigapptor} into an {@code StartDate}.
+     * Parses a {@code String investigapptor} into an {@code Date}.
      * Leading and trailing whitespaces will be trimmed.
      *
      * @throws IllegalValueException if the given {@code investigapptor} is invalid.
      */
-    public static StartDate parseStartDate(String startDate) throws IllegalValueException {
+    public static Date parseStartDate(String startDate) throws IllegalValueException {
         requireNonNull(startDate);
         String trimmedStartDate = startDate.trim();
-        if (!StartDate.isValidDate(trimmedStartDate)) {
-            throw new IllegalValueException(StartDate.MESSAGE_DATE_CONSTRAINTS);
+        if (!Date.isValidDate(trimmedStartDate)) {
+            throw new IllegalValueException(Date.MESSAGE_DATE_CONSTRAINTS);
         }
-        return new StartDate(trimmedStartDate);
+        return new Date(trimmedStartDate);
     }
 
     /**
-     * Parses a {@code Optional<String> investigapptor} into an {@code Optional<StartDate>}
+     * Parses a {@code Optional<String> investigapptor} into an {@code Optional<Date>}
      * if {@code investigapptor} is present.
      * See header comment of this class regarding the use of {@code Optional} parameters.
      */
-    public static Optional<StartDate> parseStartDate(Optional<String> startDate) throws IllegalValueException {
+    public static Optional<Date> parseStartDate(Optional<String> startDate) throws IllegalValueException {
         requireNonNull(startDate);
         return startDate.isPresent() ? Optional.of(parseStartDate(startDate.get())) : Optional.empty();
     }
 
+
+    /**
+     * Parses a {@code String rank} into a {@code Rank}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws IllegalValueException if the given {@code rank} is invalid.
+     */
+    public static Rank parseRank(String rank) throws IllegalValueException {
+        requireNonNull(rank);
+        String trimmedRank = rank.trim();
+        if (!Rank.isValidRank(trimmedRank)) {
+            throw new IllegalValueException(Rank.MESSAGE_RANK_CONSTRAINTS);
+        }
+        return new Rank(trimmedRank);
+    }
+    /**
+     * Parses a {@code Optional<String> phone} into an {@code Optional<Phone>} if {@code phone} is present.
+     * See header comment of this class regarding the use of {@code Optional} parameters.
+     */
+    public static Optional<Rank> parseRank(Optional<String> rank) throws IllegalValueException {
+        requireNonNull(rank);
+        return rank.isPresent() ? Optional.of(parseRank(rank.get())) : Optional.empty();
+    }
     /**
      * Parses a {@code String tag} into a {@code Tag}.
      * Leading and trailing whitespaces will be trimmed.
@@ -243,4 +279,20 @@ public class ParserUtil {
         }
         return tagSet;
     }
+
+    //@@author quentinkhoo
+    /**
+     * Parses a {@code String email} into an {@code Email}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws IllegalValueException if the given {@code email} is invalid.
+     */
+    public static Password parsePassword(String password) throws InvalidPasswordException {
+        requireNonNull(password);
+        if (!Password.isValidPassword(password)) {
+            throw new InvalidPasswordException(Password.MESSAGE_PASSWORD_CONSTRAINTS);
+        }
+        return new Password(password);
+    }
+    //@@author
 }

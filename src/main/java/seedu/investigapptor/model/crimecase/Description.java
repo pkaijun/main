@@ -2,7 +2,7 @@ package seedu.investigapptor.model.crimecase;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.investigapptor.commons.util.AppUtil.checkArgument;
-
+//@@author leowweiching-reused
 /**
  * Represents a Crime Case's description in the Investigator Application.
  * Guarantees: immutable; is valid as declared in {@link #isValidDescription(String)}
@@ -10,7 +10,7 @@ import static seedu.investigapptor.commons.util.AppUtil.checkArgument;
 public class Description {
 
     public static final String MESSAGE_DESCRIPTION_CONSTRAINTS =
-            "Crime case descriptions should not be blank";
+            "Crime case descriptions can take any values, and it should not be blank";
 
     public static final String CASE_NAME_VALIDATION_REGEX = "[\\p{Graph}][\\p{Graph}]*";
 

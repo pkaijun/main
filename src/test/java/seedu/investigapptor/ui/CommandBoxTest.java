@@ -1,5 +1,7 @@
 package seedu.investigapptor.ui;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -11,19 +13,20 @@ import guitests.guihandles.CommandBoxHandle;
 import javafx.scene.input.KeyCode;
 import seedu.investigapptor.logic.Logic;
 import seedu.investigapptor.logic.LogicManager;
-import seedu.investigapptor.logic.commands.ListCommand;
+import seedu.investigapptor.logic.commands.ListInvestigatorCommand;
 import seedu.investigapptor.model.Model;
 import seedu.investigapptor.model.ModelManager;
 
 public class CommandBoxTest extends GuiUnitTest {
 
-    private static final String COMMAND_THAT_SUCCEEDS = ListCommand.COMMAND_WORD;
+    private static final String COMMAND_THAT_SUCCEEDS = ListInvestigatorCommand.COMMAND_WORD;
     private static final String COMMAND_THAT_FAILS = "invalid command";
 
     private ArrayList<String> defaultStyleOfCommandBox;
     private ArrayList<String> errorStyleOfCommandBox;
 
     private CommandBoxHandle commandBoxHandle;
+    private CommandBoxHandle commandBoxHandleDisplay;
 
     @Before
     public void setUp() {
@@ -33,9 +36,11 @@ public class CommandBoxTest extends GuiUnitTest {
         CommandBox commandBox = new CommandBox(logic);
         commandBoxHandle = new CommandBoxHandle(getChildNode(commandBox.getRoot(),
                 CommandBoxHandle.COMMAND_INPUT_FIELD_ID));
+        commandBoxHandleDisplay = new CommandBoxHandle(getChildNode(commandBox.getRoot(),
+                CommandBoxHandle.COMMAND_DISPLAY_FIELD_ID));
         uiPartRule.setUiPart(commandBox);
 
-        defaultStyleOfCommandBox = new ArrayList<>(commandBoxHandle.getStyleClass());
+        defaultStyleOfCommandBox = new ArrayList<>(commandBoxHandleDisplay.getStyleClass());
 
         errorStyleOfCommandBox = new ArrayList<>(defaultStyleOfCommandBox);
         errorStyleOfCommandBox.add(CommandBox.ERROR_STYLE_CLASS);
@@ -62,11 +67,22 @@ public class CommandBoxTest extends GuiUnitTest {
     public void commandBox_handleKeyPress() {
         commandBoxHandle.run(COMMAND_THAT_FAILS);
         assertEquals(errorStyleOfCommandBox, commandBoxHandle.getStyleClass());
-        guiRobot.push(KeyCode.ESCAPE);
-        assertEquals(errorStyleOfCommandBox, commandBoxHandle.getStyleClass());
 
         guiRobot.push(KeyCode.A);
-        assertEquals(defaultStyleOfCommandBox, commandBoxHandle.getStyleClass());
+        assertEquals(defaultStyleOfCommandBox, commandBoxHandleDisplay.getStyleClass());
+    }
+
+    @Test
+    public void handleKeyPress_escape() {
+        guiRobot.push(KeyCode.ESCAPE);
+        assertTrue("".equals(commandBoxHandleDisplay.getInput()));
+
+        guiRobot.write("some input");
+        assertTrue("some input".equals(commandBoxHandleDisplay.getInput()));
+
+        guiRobot.push(KeyCode.ESCAPE);
+        assertFalse("some input".equals(commandBoxHandle.getInput()));
+        assertTrue("".equals(commandBoxHandle.getInput()));
     }
 
     @Test
@@ -91,7 +107,7 @@ public class CommandBoxTest extends GuiUnitTest {
 
         // insert command in the middle of retrieving previous commands
         guiRobot.push(KeyCode.UP);
-        String thirdCommand = "list";
+        String thirdCommand = "listinvestigators";
         commandBoxHandle.run(thirdCommand);
         assertInputHistory(KeyCode.UP, thirdCommand);
         assertInputHistory(KeyCode.UP, COMMAND_THAT_FAILS);
@@ -132,8 +148,8 @@ public class CommandBoxTest extends GuiUnitTest {
      */
     private void assertBehaviorForFailedCommand() {
         commandBoxHandle.run(COMMAND_THAT_FAILS);
-        assertEquals(COMMAND_THAT_FAILS, commandBoxHandle.getInput());
-        assertEquals(errorStyleOfCommandBox, commandBoxHandle.getStyleClass());
+        assertEquals(COMMAND_THAT_FAILS, commandBoxHandleDisplay.getInput());
+        assertEquals(errorStyleOfCommandBox, commandBoxHandleDisplay.getStyleClass());
     }
 
     /**
@@ -143,8 +159,9 @@ public class CommandBoxTest extends GuiUnitTest {
      */
     private void assertBehaviorForSuccessfulCommand() {
         commandBoxHandle.run(COMMAND_THAT_SUCCEEDS);
-        assertEquals("", commandBoxHandle.getInput());
-        assertEquals(defaultStyleOfCommandBox, commandBoxHandle.getStyleClass());
+
+        assertEquals("", commandBoxHandleDisplay.getInput());
+        assertEquals(defaultStyleOfCommandBox, commandBoxHandleDisplay.getStyleClass());
     }
 
     /**

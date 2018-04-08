@@ -20,8 +20,10 @@ import seedu.investigapptor.logic.UndoRedoStack;
 import seedu.investigapptor.logic.commands.exceptions.CommandException;
 import seedu.investigapptor.model.Investigapptor;
 import seedu.investigapptor.model.Model;
+import seedu.investigapptor.model.Password;
 import seedu.investigapptor.model.ReadOnlyInvestigapptor;
 import seedu.investigapptor.model.crimecase.CrimeCase;
+import seedu.investigapptor.model.crimecase.exceptions.CrimeCaseNotFoundException;
 import seedu.investigapptor.model.crimecase.exceptions.DuplicateCrimeCaseException;
 import seedu.investigapptor.model.person.Person;
 import seedu.investigapptor.model.person.exceptions.DuplicatePersonException;
@@ -135,6 +137,17 @@ public class RegisterInvestigatorCommandTest {
         }
 
         @Override
+        public void updateCrimeCase(CrimeCase target, CrimeCase editedCase)
+                throws DuplicateCrimeCaseException {
+            fail("This method should not be called.");
+        }
+
+        @Override
+        public void deleteCrimeCase(CrimeCase target) throws CrimeCaseNotFoundException {
+            fail("This method should not be called.");
+        }
+
+        @Override
         public void deleteTag(Tag toDelete)
                 throws TagNotFoundException {
             fail("This method should not be called.");
@@ -160,6 +173,21 @@ public class RegisterInvestigatorCommandTest {
         @Override
         public void updateFilteredCrimeCaseList(Predicate<CrimeCase> predicate) {
             fail("This method should not be called.");
+        }
+
+        @Override
+        public void backUpInvestigapptor(String fileName) {
+            fail("This method should not be called.");
+        }
+
+        @Override
+        public void updatePassword(Password password) {
+            fail("This method should not be called");
+        }
+
+        @Override
+        public void removePassword() {
+            fail("This method should not be called");
         }
     }
 

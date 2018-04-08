@@ -10,7 +10,7 @@ import org.junit.rules.ExpectedException;
 
 import seedu.investigapptor.logic.commands.CommandResult;
 import seedu.investigapptor.logic.commands.HistoryCommand;
-import seedu.investigapptor.logic.commands.ListCommand;
+import seedu.investigapptor.logic.commands.ListInvestigatorCommand;
 import seedu.investigapptor.logic.commands.exceptions.CommandException;
 import seedu.investigapptor.logic.parser.exceptions.ParseException;
 import seedu.investigapptor.model.Model;
@@ -34,16 +34,16 @@ public class LogicManagerTest {
 
     @Test
     public void execute_commandExecutionError_throwsCommandException() {
-        String deleteCommand = "deleteInvestigator 9";
+        String deleteCommand = "deleteinvestigator 9";
         assertCommandException(deleteCommand, MESSAGE_INVALID_INVESTIGATOR_DISPLAYED_INDEX);
         assertHistoryCorrect(deleteCommand);
     }
 
     @Test
     public void execute_validCommand_success() {
-        String listCommand = ListCommand.COMMAND_WORD;
-        assertCommandSuccess(listCommand, ListCommand.MESSAGE_SUCCESS, model);
-        assertHistoryCorrect(listCommand);
+        String listInvestigatorCommand = ListInvestigatorCommand.COMMAND_WORD;
+        assertCommandSuccess(listInvestigatorCommand, ListInvestigatorCommand.MESSAGE_SUCCESS, model);
+        assertHistoryCorrect(listInvestigatorCommand);
     }
 
     @Test

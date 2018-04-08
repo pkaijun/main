@@ -10,7 +10,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 import seedu.investigapptor.commons.exceptions.IllegalValueException;
 import seedu.investigapptor.model.Investigapptor;
 import seedu.investigapptor.model.ReadOnlyInvestigapptor;
-
+import seedu.investigapptor.model.person.investigator.Investigator;
+//@@author leowweiching-reused
 /**
  * An Immutable Investigapptor that is serializable to XML format
  */
@@ -18,17 +19,26 @@ import seedu.investigapptor.model.ReadOnlyInvestigapptor;
 public class XmlSerializableInvestigapptor {
 
     @XmlElement
+    private List<XmlAdaptedCrimeCase> cases;
+    @XmlElement
     private List<XmlAdaptedPerson> persons;
     @XmlElement
     private List<XmlAdaptedTag> tags;
+    @XmlElement
+    private List<XmlAdaptedInvestigator> investigators;
+    @XmlElement
+    private XmlAdaptedPassword password;
 
     /**
      * Creates an empty XmlSerializableInvestigapptor.
      * This empty constructor is required for marshalling.
      */
     public XmlSerializableInvestigapptor() {
+        cases = new ArrayList<>();
         persons = new ArrayList<>();
+        investigators = new ArrayList<>();
         tags = new ArrayList<>();
+        password = new XmlAdaptedPassword();
     }
 
     /**
@@ -36,24 +46,37 @@ public class XmlSerializableInvestigapptor {
      */
     public XmlSerializableInvestigapptor(ReadOnlyInvestigapptor src) {
         this();
-        persons.addAll(src.getPersonList().stream().map(XmlAdaptedPerson::new).collect(Collectors.toList()));
+        cases.addAll(src.getCrimeCaseList().stream().map(XmlAdaptedCrimeCase::new).collect(Collectors.toList()));
+        persons.addAll(src.getPersonOnlyList().stream().map(XmlAdaptedPerson::new).collect(Collectors.toList()));
+        investigators.addAll(src.getInvestigatorList().stream()
+                .map(XmlAdaptedInvestigator::new).collect(Collectors.toList()));
         tags.addAll(src.getTagList().stream().map(XmlAdaptedTag::new).collect(Collectors.toList()));
+        password = new XmlAdaptedPassword(src.getPassword());
     }
 
     /**
      * Converts this investigapptor into the model's {@code Investigapptor} object.
      *
      * @throws IllegalValueException if there were any data constraints violated or duplicates in the
-     * {@code XmlAdaptedPerson} or {@code XmlAdaptedTag}.
+     *                               {@code XmlAdaptedCrimeCase}, {@code XmlAdaptedPerson} or {@code XmlAdaptedTag}.
      */
     public Investigapptor toModelType() throws IllegalValueException {
         Investigapptor investigapptor = new Investigapptor();
         for (XmlAdaptedTag t : tags) {
             investigapptor.addTag(t.toModelType());
         }
+        for (XmlAdaptedCrimeCase c : cases) {
+            investigapptor.addCrimeCase(c.toModelType());
+        }
         for (XmlAdaptedPerson p : persons) {
             investigapptor.addPerson(p.toModelType());
         }
+        for (XmlAdaptedInvestigator i : investigators) {
+            Investigator investigator = i.toModelType();
+            investigapptor.addPerson(investigator);
+
+        }
+        investigapptor.setPassword(password.toModelType());
         return investigapptor;
     }
 
@@ -68,6 +91,7 @@ public class XmlSerializableInvestigapptor {
         }
 
         XmlSerializableInvestigapptor otherAb = (XmlSerializableInvestigapptor) other;
-        return persons.equals(otherAb.persons) && tags.equals(otherAb.tags);
+        return cases.equals(otherAb.cases) && persons.equals(otherAb.persons) && tags.equals(otherAb.tags)
+                && password.equals(otherAb.password);
     }
 }
