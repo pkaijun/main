@@ -17,8 +17,8 @@ import seedu.investigapptor.model.person.exceptions.DuplicatePersonException;
  */
 public class RegisterInvestigatorCommand extends UndoableCommand {
 
-    public static final String COMMAND_WORD = "registerInvestigator";
-    public static final String COMMAND_ALIAS = "regInvest";
+    public static final String COMMAND_WORD = "addinvestigator";
+    public static final String COMMAND_ALIAS = "ai";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Registers an investigator to investigapptor. "
             + "Parameters: "
@@ -26,6 +26,7 @@ public class RegisterInvestigatorCommand extends UndoableCommand {
             + PREFIX_PHONE + "PHONE "
             + PREFIX_EMAIL + "EMAIL "
             + PREFIX_ADDRESS + "ADDRESS "
+            + PREFIX_RANK + "RANK "
             + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " "
             + PREFIX_NAME + "John Doe "

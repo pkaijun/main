@@ -27,28 +27,29 @@ import seedu.investigapptor.model.person.Person;
 import seedu.investigapptor.model.person.investigator.Investigator;
 import seedu.investigapptor.model.tag.Tag;
 
+//@@author leowweiching
 /**
  * Adds a case to the investigapptor book.
  */
 public class AddCaseCommand extends UndoableCommand {
 
-    public static final String COMMAND_WORD = "addCase";
-    public static final String COMMAND_ALIAS = "aC";
+    public static final String COMMAND_WORD = "addcase";
+    public static final String COMMAND_ALIAS = "ac";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Adds a case to the investigapptor book. "
             + "Parameters: "
             + PREFIX_NAME + "NAME "
             + PREFIX_DESCRIPTION + "DESCRIPTION "
-            + PREFIX_INVESTIGATOR + "INDEX (must be a positive integer) "
+            + PREFIX_INVESTIGATOR + "INVESTIGATOR_INDEX (must be a positive integer) "
             + PREFIX_STARTDATE + "START DATE "
             + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " "
             + PREFIX_NAME + "Project Magic "
             + PREFIX_DESCRIPTION + "Kidnapping of 6 year-old John Doe "
             + PREFIX_INVESTIGATOR + "1 "
-            + PREFIX_STARTDATE + "25/12/2017 "
+            + PREFIX_STARTDATE + "01/04/2018 "
             + PREFIX_TAG + "Homicide "
-            + PREFIX_TAG + "Missing Persons";
+            + PREFIX_TAG + "Fraud";
 
     public static final String MESSAGE_SUCCESS = "New case added: %1$s";
     public static final String MESSAGE_DUPLICATE_CASE = "This case already exists in the investigapptor book";
