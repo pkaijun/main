@@ -14,8 +14,9 @@ import seedu.investigapptor.commons.events.ui.SwapTabEvent;
 import seedu.investigapptor.logic.commands.exceptions.CommandException;
 import seedu.investigapptor.model.crimecase.CaseName;
 import seedu.investigapptor.model.crimecase.CrimeCase;
-import seedu.investigapptor.model.crimecase.Date;
 import seedu.investigapptor.model.crimecase.Description;
+import seedu.investigapptor.model.crimecase.EndDate;
+import seedu.investigapptor.model.crimecase.StartDate;
 import seedu.investigapptor.model.crimecase.Status;
 import seedu.investigapptor.model.crimecase.exceptions.CrimeCaseNotFoundException;
 import seedu.investigapptor.model.crimecase.exceptions.DuplicateCrimeCaseException;
@@ -32,7 +33,7 @@ public class CloseCaseCommand extends UndoableCommand {
     public static final String COMMAND_ALIAS = "cl";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Changes the status from open to close "
-            + "and updates the end date accordingly.\n"
+            + "and updates the end date to today's date.\n"
             + "Parameters: INDEX (must be a positive integer) "
             + "Example: " + COMMAND_WORD + " 1 ";
 
@@ -94,12 +95,11 @@ public class CloseCaseCommand extends UndoableCommand {
 
         CaseName name = caseToClose.getCaseName();
         Description desc = caseToClose.getDescription();
-        Date startDate = caseToClose.getStartDate();
-        Date endDate = new Date(Date.getTodayDate());
+        StartDate startDate = caseToClose.getStartDate();
+        EndDate endDate = new EndDate(EndDate.getTodayDate());
         Set<Tag> tags = caseToClose.getTags();
         Investigator investigator = caseToClose.getCurrentInvestigator();
-        Status status = caseToClose.getStatus();
-        status.closeCase();    // Close case status only
+        Status status = new Status(CASE_CLOSE);
 
         return new CrimeCase(name, desc, investigator, startDate, endDate, status, tags);
     }
