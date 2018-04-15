@@ -28,7 +28,7 @@ Responsibilities: Documentation, Storage, Deliverables and Deadlines +
 
 === Marcus Chen Xian Chong
 image::marcus-cxc.jpg[width="150", align="left"]
-{empty}[http://github.com/marcus-cxc[github]] [<<marcus-cxc#, portfolio>>]
+{empty}[http://github.com/marcus-cxc[github]] [<<Marcus-cxc#, portfolio>>]
 
 Role: Developer +
 Responsibilities: Documentation, Model, Deliverables and Deadlines +
