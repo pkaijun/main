@@ -781,11 +781,11 @@ You can refer to the screenshots below for an example.
 
 [[editcase1]]
 .Editing Case
-image::userguide-images/ec-command1.png[width="450"]
+image::userguide-images/ec-command1.png[width="400"]
 
 [[editcase2]]
 .Result
-image::userguide-images/ec-command2.png[width="450"]
+image::userguide-images/ec-command2.png[width="400"]
 
 The following provides an explanation of some command examples:
 
@@ -795,7 +795,7 @@ Edits the description and investigator of the 1st case to be `some description` 
 Changes the investigator of the 2nd case to the 3rd investigator in the most recent listing of investigators, and clears all existing tags.
 //end::editcase[]
 
-//tag::findcases[]
+//tag::findcasesname[]
 [[FindCases]]
 ==== Locating cases by name: `findcases` [Since v1.3]
 
@@ -815,11 +815,11 @@ Only full words will be matched e.g. You cannot type `Danger` to search for name
 You can refer to the screenshots below for an example.
 [[findcases]]
 .Finding cases by its name (Panel List)
-image::userguide-images/fc-command.png[width="450"]
+image::userguide-images/fc-command.png[width="350"]
 
 [[findcases-calendar]]
 .Finding cases by its name (Calendar View)
-image::userguide-images/fc-command-calendar.png[width="450"]
+image::userguide-images/fc-command-calendar.png[width="350"]
 
 The following provides an explanation of some command examples:
 
@@ -830,7 +830,7 @@ Returns any cases having names `murder`, `rape`, or `arson`
 
 You can refer to <<CasesCalendar, Cases Calendar Section>> for the guide to the Cases' Calendar
 should you require more information about it.
-//end::findcases[]
+//end::findcasesname[]
 
 //tag::findcasetags[]
 [[FindCaseTags]]
@@ -989,7 +989,9 @@ INDEX at the top left of their card as show in the diagram <<deletecase-index, b
 
 [[deletecase-index]]
 .Case Index
-image::userguide-images/dc-index.png[width="320"]
+image::userguide-images/dc-index.png[width="280"]
+
+//end::deletecase[]
 
 You can refer to the screenshots below for an example of how the Investigapptor
 will look like after you've executed the `deletecase` command.
@@ -1029,7 +1031,7 @@ The index *must be a positive integer* 1, 2, 3, ...
 You can refer to the screenshot below for an example on how to use the command.
 [[selectcase-img]]
 .`selectcase 1` command
-image::userguide-images/sc-command.png[width="450"]
+image::userguide-images/sc-command.png[width="400"]
 
 The following provides an explanation of some command examples:
 
