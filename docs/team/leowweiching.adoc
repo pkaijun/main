@@ -8,10 +8,7 @@
 
 == Overview
 
-Investigapptor is a desktop application used for investigators to manage cases as simple, straightforward and efficient as possible.
-
-
-The user interacts with it using a CLI, and it has a GUI created with JavaFX. It is written in Java, and has about 10 kLoC.
+Investigapptor is a desktop application used for investigators to manage cases as simple, straightforward and efficient as possible. The user interacts with it using a CLI, and it has a GUI created with JavaFX. It is written in Java, and has about 10 kLoC.
 
 == Summary of contributions
 
@@ -43,9 +40,9 @@ The user interacts with it using a CLI, and it has a GUI created with JavaFX. It
 |===
 
 include::../UserGuide.adoc[tag=addcase]
-include::../UserGuide.adoc[tag=editcase]
-include::../UserGuide.adoc[tag=findcases]
-include::../UserGuide.adoc[tag=deletecase]
+
+include::../UserGuide.adoc[tag=findcasesname]
+
 include::../UserGuide.adoc[tag=selectcase]
 
 == Contributions to the Developer Guide
@@ -54,15 +51,7 @@ include::../UserGuide.adoc[tag=selectcase]
 |_Given below are sections I contributed to the Developer Guide. They showcase my ability to write technical documentation and the technical depth of my contributions to the project._
 |===
 
-include::../DeveloperGuide.adoc[tag=crimecase]
-
-include::../DeveloperGuide.adoc[tag=addcase]
-
 include::../DeveloperGuide.adoc[tag=deletecase]
-
-include::../DeveloperGuide.adoc[tag=editcase]
-
-include::../DeveloperGuide.adoc[tag=findcases]
 
 include::../DeveloperGuide.adoc[tag=selectcase]
 

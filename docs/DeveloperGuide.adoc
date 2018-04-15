@@ -1245,7 +1245,7 @@ public boolean removeCrimeCase(CrimeCase key) throws CrimeCaseNotFoundException 
 The sequence diagram for the `Model` component is provided below.
 
 .Interactions Inside the Model Component for the `deletecase 1` Command
-image::SD_DeleteCaseCommand_Model.png[width="500"]
+image::SD_DeleteCaseCommand_Model.png[width="400"]
 //end::deletecase[]
 
 //tag::editcase[]
@@ -1310,7 +1310,7 @@ throws DuplicateCrimeCaseException, CrimeCaseNotFoundException {
 The following sequence diagram below illustrates how the Model component works when a case is edited.
 
 .Interactions Inside the Model Component for the `editcase` Command
-image::SD_EditCaseCommand_Model.png[width="800"]
+image::SD_EditCaseCommand_Model.png[width="600"]
 
 //end::editcase[]
 
@@ -1608,7 +1608,7 @@ private void handleCrimeCasePanelSelectionChangedEvent(CrimeCasePanelSelectionCh
 The following sequence diagram below shows how the EventsCenter interacts with the UI component.
 
 .Interactions Inside the EventsCenter and UI Component for the `selectcase 1` Command
-image::SD_SelectCaseCommand_EventsCenter.png[width="800"]
+image::SD_SelectCaseCommand_EventsCenter.png[width="600"]
 
 `loadCrimeCasePage` method then takes the `CrimeCase` object contained within the event and splits it up into its various components (i.e. case name, description, investigator, start date, end date, status, and tags), to be processed for viewing on the UI.
 
